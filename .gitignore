@@ -2,7 +2,7 @@
 *egg-info
 
 # PyPI
-build/*
+*build/*
 
 # Mazes
 maze100/df/*
