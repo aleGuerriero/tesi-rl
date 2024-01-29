@@ -1,0 +1,11 @@
+[build-system]
+requires = ["setuptools>=59.0.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "mazeb"
+version = "1.0.0"
+
+dependencies = [
+  "networkx>=3.0"
+]

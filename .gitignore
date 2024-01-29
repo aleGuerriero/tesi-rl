@@ -1,0 +1,25 @@
+*__pycache__
+*egg-info
+
+# PyPI
+build/*
+
+# Mazes
+maze100/df/*
+maze100/imgs/*
+
+maze250/df/*
+maze250/imgs/*
+
+maze500/df/*
+maze500/imgs/*
+
+maze1000/df/*
+maze1000/imgs/*
+
+# Docs
+.vscode
+.DS_Store
+
+# Virtual env
+venv
