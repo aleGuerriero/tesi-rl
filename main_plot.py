@@ -62,10 +62,9 @@ def main():
 
   args = parser.parse_args()
 
-  eps = [1, 0.66, 0.5, 0.33, 0.0]
+  eps = [1.0, 0.66, 0.5, 0.33, 0.0]
   obs_range = [5, 7, 9]
 
-  src_folder = Path(args.maze) / 'src'
   df_folder = Path(args.maze) / 'df'
   fig_folder = Path(args.maze) / 'imgs'
 
