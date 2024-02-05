@@ -36,16 +36,12 @@ def plot_steps_and_rewards(rewards_df, steps_df):
   plt.close()
   return fig
 
-def plot_steps_and_rewards_eps(obs_rewards, obs_steps):
+def plot_steps_eps(obs_steps):
   with sns.color_palette('husl', 8):
-    fig, ax = plt.subplots(nrows=1, ncols=2, figsize=(15, 5))
-    sns.lineplot(
-      data=obs_rewards, x="Episodes", y="cum_rewards", hue='eps', ax=ax[0], palette=get_palette(5)
-    )
-    ax[0].set(ylabel="Cumulated rewards")
+    fig, ax = plt.subplots(nrows=1, ncols=1, figsize=(15, 5))
 
     sns.lineplot(
-      data=obs_steps, x="Episodes", y="avg_step", hue='eps', ax=ax[1], palette=get_palette(5)
+      data=obs_steps, x="Episodes", y="avg_step", hue='eps', ax=ax, palette=get_palette(5)
     )
     ax[1].set(ylabel="Averaged steps number")
 

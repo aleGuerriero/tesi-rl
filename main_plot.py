@@ -2,11 +2,10 @@ from __future__ import annotations
 
 import pandas as pd
 import numpy as np
-import seaborn as sns
 
 from pathlib import Path
 
-from mazeenv.utils.plotting import plot_action_distribution, plot_steps_and_rewards, plot_steps_and_rewards_eps
+from mazeenv.utils.plotting import plot_action_distribution, plot_steps_and_rewards, plot_steps_eps
 
 def read_steps_rewards(df_folder: Path, e: float):
   df_rewards_name = df_folder / f'res.{e}.csv'
@@ -21,7 +20,7 @@ def read_steps_rewards(df_folder: Path, e: float):
 
 def read_actions(df_folder: Path):
   df_actions = pd.DataFrame()
-  for e in [1, 0.66, 0.5, 0.33, 0.0]:
+  for e in [1.0, 0.66, 0.5, 0.33, 0.0]:
     df_actions_name = df_folder / f'actions.{e}.csv'
     print(f'reading {df_actions_name}...')
     df_tmp = pd.read_csv(df_actions_name)
@@ -68,12 +67,6 @@ def main():
   df_folder = Path(args.maze) / 'df'
   fig_folder = Path(args.maze) / 'imgs'
 
-  #Plot the maze
-  #TODO
-  if args.plotmaze | args.all:
-    pass
-
-  obs_rewards = pd.DataFrame()
   obs_steps = pd.DataFrame()
   for e in eps:
     #Plotto reward e step per valore di epsilon
@@ -90,26 +83,25 @@ def main():
       img_name = f'steps_rewards.{e}.png'
       fig.savefig(fig_folder / img_name)
 
-      obs_rewards = pd.concat([obs_rewards, df_rewards])
       obs_steps = pd.concat([obs_steps, df_steps])
 
-    if args.distr | args.all:
-      print('Plotting states action distribution')
+  if args.distr | args.all:
+    print('Plotting states action distribution')
 
-      df_actions = read_actions(df_folder)
+    df_actions = read_actions(df_folder)
 
-      for obs in obs_range:
-        actions = df_actions[df_actions['obs_range']==obs][['Actions', 'eps']]
-        grouped_actions = actions.groupby(['Actions', 'eps']).size().reset_index(name='count')
-        print(grouped_actions)
-        print(f'Plotting states-action for lambda {e}, obs {obs}...')
-        fig = plot_action_distribution(grouped_actions)
-        img_name = f'actions.o{obs}.png'
-        fig.savefig(fig_folder / img_name)
+    for obs in obs_range:
+      actions = df_actions[df_actions['obs_range']==obs][['Actions', 'eps']]
+      grouped_actions = actions.groupby(['Actions', 'eps']).size().reset_index(name='count')
+      print(grouped_actions)
+      print(f'Plotting states-action for lambda {e}, obs {obs}...')
+      fig = plot_action_distribution(grouped_actions)
+      img_name = f'actions.o{obs}.png'
+      fig.savefig(fig_folder / img_name)
 
   if args.all:
     for obs in [5, 7, 9]:
-      fig = plot_steps_and_rewards_eps(obs_rewards[obs_rewards['obs_range']==obs], obs_steps[obs_steps['obs_range']==obs])
+      fig = plot_steps_eps(obs_steps[obs_steps['obs_range']==obs])
       img_name = f'eps_steps_rewards.0{obs}.png'
       fig.savefig(fig_folder / img_name)
 

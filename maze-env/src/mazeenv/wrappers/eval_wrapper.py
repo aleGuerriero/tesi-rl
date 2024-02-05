@@ -3,7 +3,6 @@ import numpy as np
 import seaborn as sns
 import matplotlib.pyplot as plt
 import matplotlib.patches as mpatches
-from matplotlib.offsetbox import OffsetImage, AnnotationBbox
 
 from gymnasium import Wrapper
 from pathlib import Path
@@ -22,9 +21,9 @@ class EvalWrapper(Wrapper):
     self.env = env
     self.qtable = qtable
 
-    self.window_size = (900, 900)
-    self.c_size = 900 / max((self.env.unwrapped.width, self.env.unwrapped.height))
-    self.colors = sns.color_palette('pastel', n_colors=self.env.get_wrapper_attr('action_space').n)
+    self.window_size = (500, 500)
+    self.c_size = 500 / max((self.env.unwrapped.width, self.env.unwrapped.height))
+    self.colors = sns.color_palette('colorblind', n_colors=self.env.get_wrapper_attr('action_space').n - 3)
 
   def render():
     pass
@@ -41,18 +40,31 @@ class EvalWrapper(Wrapper):
     canvas.fill((0, 0, 0))
 
     for i, state in enumerate(self.qtable):
-      qvalue = max(state)
-      action = np.argmax(state)
-      r, g, b = self.colors[action]
+      if not np.all(state==0):
+        qvalue = max(state)
+        action = np.argmax(state)
+        if action in [0, 1, 2, 3]:
+          r, g, b = self.colors[0]
+        else:
+          r, g, b = self.colors[action-3]
 
-      pygame.draw.rect(
-        canvas,
-        (int(r*255), int(g*255), int(b*255)),
-        pygame.Rect(
-          self.c_size * np.array((i%self.env.unwrapped.width, int(i/self.env.unwrapped.height))),
-          (self.c_size, self.c_size)
+        if qvalue <= -0.75:
+          alpha = int(255/4)
+        elif qvalue <= -0.5:
+          alpha = int(255/2)
+        elif qvalue <= -0.25:
+          alpha = int((255/4)*3)
+        else:
+          alpha = 0
+
+        pygame.draw.rect(
+          canvas,
+          (int(r*255), int(g*255), int(b*255)),
+          pygame.Rect(
+            self.c_size * np.array((i%self.env.unwrapped.width, int(i/self.env.unwrapped.height))),
+            (self.c_size, self.c_size)
+          )
         )
-      )
     
     render_maze(self.env.unwrapped.maze, canvas, self.c_size)
 
@@ -68,18 +80,23 @@ class EvalWrapper(Wrapper):
         img_path: Path
     ):
     self._render_frame()
+
     pygame.image.save(self.env.unwrapped.window, img_path)
 
-"""
-    labels = ['RIGHT', 'UP', 'LEFT', 'DOWN', 'DFS', 'BFS', 'ASTAR']
+    labels = ['Standard\nactions', 'DFS', 'BFS', 'A-Star']
 
     fig, ax = plt.subplots()
     img = plt.imread(img_path)
-    imagebox = OffsetImage(img, zoom=0.2)
-    ab = AnnotationBbox(imagebox, (0.5, 0.5), frameon=False, pad=0.0, xycoords='axes fraction', boxcoords='axes fraction')
-    legend_patches = [mpatches.Patch(color=f'C{i}', label=label) for i, label in enumerate(labels)]
-    ax.legend(handles=legend_patches, loc='upper left')
+
+    ax.imshow(img, extent=[0, 1, 0, 1], aspect='auto')
+
+    # Aggiungo legenda
+    patches = [mpatches.Patch(color=color, label=label) for label, color in zip(labels, self.colors)]
+    plt.legend(handles=patches, loc='upper left', bbox_to_anchor=(1, 1))
+    plt.subplots_adjust(left=0.1, right=0.75, top=0.9, bottom=0.1)
+
+    ax.axis('off')
+
     ax.set_xlim(0, 1)
     ax.set_ylim(0, 1)
     fig.savefig(img_path)
-"""
